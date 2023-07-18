@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Projeto RAVIN</title>
+  <style>
+    /* Estilos gerais */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7;
+    }
+
+    /* Estilos para a barra superior */
+    .top-bar {
+      background-color: #39b54a;
+      color: white;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar span {
+      font-size: 14px;
+    }
+
+    /* Estilos para o menu de seleção de categoria */
+    .sidebar {
+      float: left;
+      width: 200px;
+      background-color: #39b54a;
+      color: white;
+      height: 100vh;
+    }
+
+    .categories {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .categories li {
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    .categories li.active {
+      background-color: #41c959;
+    }
+
+    /* Estilos para o conteúdo principal */
+    .content {
+      margin-left: 220px;
+      padding: 20px;
+    }
+
+    .item {
+      display: inline-block;
+      width: 200px;
+      height: 300px; /* Altura fixa para todos os itens */
+      padding: 10px;
+      text-align: center;
+      background-color: white;
+      margin: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .item img {
+      width: 100%;
+      height: 150px; /* Altura fixa para a imagem */
+      object-fit: cover; /* Controla o dimensionamento da imagem */
+      margin-bottom: 10px;
+    }
+
+    .item h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .item p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .price {
+      font-weight: bold;
+      color: #39b54a;
+      margin-bottom: 10px;
+    }
+
+    /* Estilos para o modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 5px;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .modal input {
+      margin-bottom: 10px;
+      padding: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .modal button {
+      background-color: #39b54a;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 20px;
+    }
+
+    .modal button:hover {
+      opacity: 0.8;
+    }
+
+    /* Estilos para a aba do carrinho */
+    .cart-tab {
+      position: fixed;
+      right: 20px;
+      bottom: 80px;
+      background-color: #39b54a;
+      color: white;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 20px;
+    }
+
+    .cart-tab span {
+      font-weight: bold;
+    }
+
+    .cart-items {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .cart-item {
+      margin-bottom: 10px;
+      background-color: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-item h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .cart-item p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .cart-item span {
+      font-weight: bold;
+      color: #39b54a;
+    }
+
+    /* Estilos para a aba de histórico de pedidos */
+    .history-tab {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background-color: #39b54a;
+      color: white;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 20px;
+    }
+
+    .history-tab span {
+      font-weight: bold;
+    }
+
+    .history-list {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .history-item {
+      margin-bottom: 10px;
+      background-color: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-item h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .history-item p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <span class="table-number" id="table-number">Mesa #1</span>
+    <div>
+      <span class="total-spent" id="total-spent">Valor gasto: R$0.00</span>
+      <span class="last-order-status" id="last-order-status">Status do último pedido: Pendente</span>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <ul class="categories">
+      <li class="active">Todas</li>
+      <li>Bebida</li>
+      <li>Comida</li>
+      <li>Sobremesa</li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <!-- Itens serão adicionados dinamicamente aqui -->
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h2>Adicionar ao pedido</h2>
+      <input type="number" min="1" value="1" placeholder="Quantidade" id="quantity-input">
+      <button class="add-to-cart">Adicionar ao carrinho</button>
+      <button class="cancel-add-to-cart">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="cart-tab">
+    <span>Ver Carrinho</span>
+  </div>
+
+  <div id="cart-modal" class="modal">
+    <div class="modal-content">
+      <h2>Carrinho</h2>
+      <div class="cart-items">
+        <!-- Itens do carrinho serão adicionados dinamicamente aqui -->
+      </div>
+      <button class="close-cart">Fechar</button>
+      <button class="confirm-order">Confirmar pedido</button>
+    </div>
+  </div>
+
+  <div class="history-tab">
+    <span>Histórico de Pedidos</span>
+  </div>
+
+  <div id="history-modal" class="modal">
+    <div class="modal-content">
+      <h2>Histórico de Pedidos</h2>
+      <div class="history-list">
+        <!-- Histórico de pedidos será adicionado dinamicamente aqui -->
+      </div>
+      <button class="close-history">Fechar</button>
+    </div>
+  </div>
+
+  <script>
+    // Itens do projeto RAVIN
+    var items = [
+      {
+        id: 1,
+        category: 'Bebida',
+        name: 'Refrigerante',
+        description: 'Bebida gaseificada',
+        price: 3.50,
+        image: 'img/refrigerante.png'
+      },
+      {
+        id: 2,
+        category: 'Comida',
+        name: 'Hambúrguer',
+        description: 'Delicioso hambúrguer',
+        price: 8.50,
+        image: 'img/hamburguer.png'
+      },
+      {
+        id: 3,
+        category: 'Sobremesa',
+        name: 'Sorvete',
+        description: 'Sorvete cremoso',
+        price: 5.00,
+        image: 'img/sorvete.png'
+      }
+    ];
+
+    // Variáveis para armazenar itens adicionados ao carrinho e histórico de pedidos
+    var cartItems = [];
+    var orderHistory = [];
+
+    // Variáveis para as informações da barra superior
+    var tableNumberElement = document.getElementById('table-number');
+    var totalSpentElement = document.getElementById('total-spent');
+    var lastOrderStatusElement = document.getElementById('last-order-status');
+
+    // Função para exibir os itens na tela
+    function displayItems(category) {
+      var content = document.querySelector('.content');
+      content.innerHTML = '';
+
+      items.forEach(function(item) {
+        if (category === 'Todas' || item.category === category) {
+          var itemElement = document.createElement('div');
+          itemElement.classList.add('item');
+          itemElement.dataset.itemId = item.id;
+
+          var imgElement = document.createElement('img');
+          imgElement.src = item.image;
+          imgElement.alt = item.name;
+
+          var nameElement = document.createElement('h3');
+          nameElement.textContent = item.name;
+
+          var descElement = document.createElement('p');
+          descElement.textContent = item.description;
+
+          var priceElement = document.createElement('span');
+          priceElement.classList.add('price');
+          priceElement.textContent = 'R$' + item.price.toFixed(2);
+
+          var buttonElement = document.createElement('button');
+          buttonElement.classList.add('add-to-cart');
+          buttonElement.textContent = 'Adicionar ao carrinho';
+
+          itemElement.appendChild(imgElement);
+          itemElement.appendChild(nameElement);
+          itemElement.appendChild(descElement);
+          itemElement.appendChild(priceElement);
+          itemElement.appendChild(buttonElement);
+
+          content.appendChild(itemElement);
+        }
+      });
+
+      // Atualiza os eventos dos botões de adicionar ao carrinho
+      updateAddToCartButtons();
+    }
+
+    // Atualiza os eventos dos botões de adicionar ao carrinho
+    function updateAddToCartButtons() {
+      var buttons = document.getElementsByClassName('add-to-cart');
+
+      Array.prototype.forEach.call(buttons, function(button) {
+        button.addEventListener('click', function() {
+          showModal(button);
+        });
+      });
+    }
+
+    // Função para exibir o modal
+    function showModal(button) {
+      var modal = document.getElementById('modal');
+      var itemId = button.parentNode.dataset.itemId;
+      var quantityInput = document.getElementById('quantity-input');
+      quantityInput.value = 1;
+      quantityInput.focus();
+
+      var item = items.find(function(item) {
+        return item.id == itemId;
+      });
+
+      modal.dataset.itemId = itemId;
+
+      modal.style.display = 'block';
+    }
+
+    // Função para fechar o modal
+    function closeModal() {
+      var modal = document.getElementById('modal');
+      modal.style.display = 'none';
+    }
+
+    // Função para adicionar item ao carrinho
+    function addToCart(itemId, quantity) {
+      var item = items.find(function(item) {
+        return item.id == itemId;
+      });
+
+      var cartItem = {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        quantity: quantity
+      };
+
+      cartItems.push(cartItem);
+
+      closeModal();
+      updateCartTab();
+    }
+
+    // Função para atualizar a aba do carrinho
+    function updateCartTab() {
+      var cartTab = document.querySelector('.cart-tab');
+      var cartItemCount = cartItems.length;
+
+      if (cartItemCount > 0) {
+        cartTab.innerHTML = '<span>Ver Carrinho (' + cartItemCount + ')</span>';
+      } else {
+        cartTab.innerHTML = '<span>Ver Carrinho</span>';
+      }
+    }
+
+    // Função para exibir o carrinho
+    function showCart() {
+      var cartModal = document.getElementById('cart-modal');
+      var cartItemsContainer = document.querySelector('.cart-items');
+
+      cartItemsContainer.innerHTML = '';
+
+      cartItems.forEach(function(item) {
+        var cartItemElement = document.createElement('div');
+        cartItemElement.classList.add('cart-item');
+
+        var itemNameElement = document.createElement('h4');
+        itemNameElement.textContent = item.name;
+
+        var itemDescElement = document.createElement('p');
+        itemDescElement.textContent = item.description;
+
+        var itemPriceElement = document.createElement('span');
+        itemPriceElement.textContent = 'R$' + item.price.toFixed(2);
+
+        var itemQuantityElement = document.createElement('span');
+        itemQuantityElement.textContent = 'Quantidade: ' + item.quantity;
+
+        cartItemElement.appendChild(itemNameElement);
+        cartItemElement.appendChild(itemDescElement);
+        cartItemElement.appendChild(itemPriceElement);
+        cartItemElement.appendChild(itemQuantityElement);
+
+        cartItemsContainer.appendChild(cartItemElement);
+      });
+
+      cartModal.style.display = 'block';
+    }
+
+    // Função para fechar o carrinho
+    function closeCart() {
+      var cartModal = document.getElementById('cart-modal');
+      cartModal.style.display = 'none';
+    }
+
+    // Função para confirmar o pedido
+    function confirmOrder() {
+      // Lógica para confirmar o pedido
+      orderHistory.push({
+        tableNumber: tableNumberElement.textContent,
+        items: cartItems
+      });
+      cartItems = [];
+      updateCartTab();
+      closeCart();
+    }
+
+    // Função para exibir o histórico de pedidos
+    function showHistory() {
+      var historyModal = document.getElementById('history-modal');
+      var historyListContainer = document.querySelector('.history-list');
+
+      historyListContainer.innerHTML = '';
+
+      orderHistory.forEach(function(order, index) {
+        var historyItemElement = document.createElement('div');
+        historyItemElement.classList.add('history-item');
+
+        var orderNumberElement = document.createElement('h4');
+        orderNumberElement.textContent = 'Pedido #' + (index + 1);
+
+        var orderTableNumberElement = document.createElement('p');
+        orderTableNumberElement.textContent = 'Mesa: ' + order.tableNumber;
+
+        var itemListElement = document.createElement('ul');
+
+        order.items.forEach(function(item) {
+          var listItemElement = document.createElement('li');
+          listItemElement.textContent = item.name;
+          itemListElement.appendChild(listItemElement);
+        });
+
+        historyItemElement.appendChild(orderNumberElement);
+        historyItemElement.appendChild(orderTableNumberElement);
+        historyItemElement.appendChild(itemListElement);
+
+        historyListContainer.appendChild(historyItemElement);
+      });
+
+      historyModal.style.display = 'block';
+    }
+
+    // Função para fechar o histórico de pedidos
+    function closeHistory() {
+      var historyModal = document.getElementById('history-modal');
+      historyModal.style.display = 'none';
+    }
+
+    // Função para selecionar uma categoria
+    function selectCategory(category) {
+      var categories = document.querySelectorAll('.categories li');
+
+      Array.prototype.forEach.call(categories, function(cat) {
+        cat.classList.remove('active');
+      });
+
+      category.classList.add('active');
+
+      var selectedCategory = category.textContent;
+      displayItems(selectedCategory);
+    }
+
+    // Evento de clique nas categorias
+    var categories = document.querySelectorAll('.categories li');
+
+    Array.prototype.forEach.call(categories, function(category) {
+      category.addEventListener('click', function() {
+        selectCategory(category);
+      });
+    });
+
+    // Evento de clique no botão de confirmação do pedido
+    var confirmOrderButton = document.querySelector('.confirm-order');
+
+    confirmOrderButton.addEventListener('click', function() {
+      confirmOrder();
+    });
+
+    // Evento de clique na aba do carrinho
+    var cartTab = document.querySelector('.cart-tab');
+
+    cartTab.addEventListener('click', function() {
+      showCart();
+    });
+
+    // Evento de clique no botão para fechar o carrinho
+    var closeCartButton = document.querySelector('.close-cart');
+
+    closeCartButton.addEventListener('click', function() {
+      closeCart();
+    });
+
+    // Evento de clique na aba de histórico de pedidos
+    var historyTab = document.querySelector('.history-tab');
+
+    historyTab.addEventListener('click', function() {
+      showHistory();
+    });
+
+    // Evento de clique no botão para fechar o histórico de pedidos
+    var closeHistoryButton = document.querySelector('.close-history');
+
+    closeHistoryButton.addEventListener('click', function() {
+      closeHistory();
+    });
+
+    // Evento de clique no botão Adicionar ao carrinho no modal
+    var addToCartButton = document.querySelector('.add-to-cart');
+
+    addToCartButton.addEventListener('click', function() {
+      var modal = document.getElementById('modal');
+      var itemId = modal.dataset.itemId;
+      var quantityInput = document.getElementById('quantity-input');
+      var quantity = parseInt(quantityInput.value);
+
+      addToCart(itemId, quantity);
+    });
+
+    // Evento de clique no botão Cancelar no modal
+    var cancelAddToCartButton = document.querySelector('.cancel-add-to-cart');
+
+    cancelAddToCartButton.addEventListener('click', function() {
+      closeModal();
+    });
+
+    // Exibir itens da categoria "Todas" ao carregar a página
+    displayItems('Todas');
+  </script>
+</body>
+</html>
